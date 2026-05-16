@@ -95,6 +95,7 @@ Restaurant-Demand-Forecasting/
 │   └── processed/         ← Cleaned & aggregated daily sales data
 │── notebooks/
 │   ├── week1_eda.ipynb
+│   ├── Food_Restaurant_Services_week_2.ipynb
 │── README.md
 ```
 
