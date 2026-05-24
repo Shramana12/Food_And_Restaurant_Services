@@ -1,7 +1,7 @@
 # 🍽️ AI Demand Forecasting & Inventory Optimization for Restaurants
 
 🚧 **Project Status**
-Ongoing Internship Project – Week 1 Completed
+Ongoing Internship Project – Week 3 Completed
 
 ---
 
@@ -13,76 +13,146 @@ The goal of this project is to build an AI-powered Demand Forecasting model for 
 
 ## 📂 Dataset
 
-**Dataset Name:** Restaurant Sales / Retail Demand Dataset
+**Dataset Name:** Store Sales — Time Series Forecasting (Kaggle)
 
-**Recommended Sources:**
-
-* 🔗 [Kaggle – Restaurant Orders Dataset](https://www.kaggle.com/datasets/ahsan81/food-ordering-and-delivery-app-dataset)
-* 🔗 [Kaggle – Store Sales Time Series Forecasting](https://www.kaggle.com/competitions/store-sales-time-series-forecasting/data)
-* 🔗 [UCI Machine Learning Repository – Online Retail Dataset](https://archive.ics.uci.edu/dataset/352/online+retail)
-
-> 💡 **How to collect the dataset:**
-> 1. Go to any of the Kaggle links above
-> 2. Create a free Kaggle account (if you don't have one)
-> 3. Click **Download** on the dataset page
-> 4. Extract the ZIP file — you will get `.csv` files with transactional/sales data
-> 5. Place the CSV files in your project's `data/raw/` folder
+**Source:** [Kaggle – Store Sales Time Series Forecasting](https://www.kaggle.com/competitions/store-sales-time-series-forecasting/data)
 
 **What the dataset contains:**
 
-* Historical daily or hourly sales transactions
-* Menu item names and quantities sold
-* Date and time information
-* (Optional) Weather data, local events, holidays
+* Historical daily sales transactions (3M+ rows, 54 stores, 33 product families)
+* Date range: January 2013 – August 2017
+* External signals: oil price, store metadata, holiday events, transaction counts
+
+> **How to set up:**
+> 1. Download from the Kaggle link above
+> 2. Extract the ZIP — you will get `train.csv`, `test.csv`, `stores.csv`, `oil.csv`, `holidays_events.csv`, `transactions.csv`, `sample_submission.csv`
+> 3. Place all CSV files in `data/raw/`
 
 ---
 
 ## 📊 Week 1: Data Ingestion, Time-Series EDA & Preprocessing
 
 ### ✔ Data Loading
-
-* Loaded raw CSV dataset into a Pandas DataFrame
-* Parsed and formatted the `date` column as a proper datetime index
-* Verified dataset shape, column names, and data types
+* Loaded all 7 CSV files into Pandas DataFrames
+* Parsed and formatted all `date` columns as proper datetime
+* Verified dataset shapes, column names, and data types
 
 ### ✔ Exploratory Data Analysis (EDA)
-
-* Plotted overall daily sales trend over time
+* Plotted overall daily sales trend (Jan 2013 – Aug 2017)
 * Visualized weekly and monthly seasonality patterns
-* Identified demand spikes (e.g., weekends, holidays)
-* Analyzed autocorrelations (ACF/PACF) to understand how past sales influence future demand
-* Detected and flagged outliers (holiday spikes, store closures)
+* Identified demand spikes on holidays and weekends
+* Analyzed ACF/PACF to understand how far back sales history matters
+* Detected and flagged outliers (holiday closures, zero-sales days)
 
 ### ✔ Data Preprocessing
-
-* Aggregated raw transactions into daily sales totals
-* Ensured the datetime index is continuous (no missing dates)
-* Handled missing values using forward-fill / interpolation
-* Split dataset sequentially:
-
-  * Train (first 10 months)
-  * Test (last 2 months)
-
-> ⚠️ **Note:** We use sequential splitting (not random) to prevent data leakage from the future into the past.
+* Merged all files into a single master DataFrame
+* Ensured continuous datetime index with no missing dates
+* Handled missing values using forward-fill and linear interpolation
+* Sequential split (no random shuffling — prevents data leakage):
+  * **Train:** Jan 2013 – Dec 2016 (2,596,374 rows)
+  * **Validation:** Jan 2017 – May 2017 (269,082 rows)
+  * **Test:** Jun 2017 – Aug 2017 (135,432 rows)
 
 ---
 
-## ⚙️ Preprocessing Pipeline
+## ⚙️ Week 2: Advanced Feature Engineering
 
-* Parsed and sorted datetime index
-* Resampled transactions to daily frequency
-* Handled missing dates and outlier events
-* Created a clean, continuous time-series ready for feature engineering
+🚧 **Status:** Completed
+
+### 🧠 Features Engineered
+
+**Chronological Features**
+* Day of week (0 = Monday … 6 = Sunday)
+* Month, quarter
+* `is_weekend` flag (1 if Saturday/Sunday)
+* `is_month_start`, `is_month_end` flags
+
+**Holiday Features**
+* `is_holiday` flag (from official holiday calendar)
+* `holiday_level` — National (3), Regional (2), Local (1)
+
+**Lag Features**
+* Sales from 7 days ago (same day last week)
+* Sales from 14 days ago
+* Sales from 28 days ago (same day last month)
+
+**Rolling Window Statistics**
+* 7-day rolling mean
+* 14-day rolling standard deviation
+* 7-day rolling max (captures recent demand peaks)
+
+**Promotion Features**
+* 7-day lag of promotion count
+* 7-day rolling mean of promotion count
+
+**Log Transformation**
+* `sales_log1p` = log1p(total_sales) — used as training target to reduce outlier effect
+
+### ⚙️ Data Split
+* Sequential split — no random shuffling
+* Final feature dataset saved to `data/processed/week2_features.csv`
+
+### 📊 Key Observations
+* Weekend sales consistently higher than weekday sales
+* Holiday periods show strong demand spikes
+* 7-day lag feature closely tracks the target sales pattern
+* Rolling mean smooths noise and captures the underlying trend
+
+---
+
+## 🤖 Week 3: Model Training and Selection
+
+🚧 **Status:** Completed
+
+### 🎯 Objective
+Train and compare three forecasting approaches — from a simple baseline to advanced ensemble models. Select the best model using Time-Series Cross-Validation.
+
+### 🏗️ Models Trained
+
+| Model | Description |
+|---|---|
+| **Linear Regression** | Baseline — establishes a performance floor |
+| **Random Forest** | Ensemble of decision trees, handles non-linear patterns |
+| **XGBoost (default)** | Gradient boosting, strong on tabular time-series data |
+| **XGBoost (tuned)** | Best params from TimeSeriesSplit CV — final best model |
+
+### ⚙️ Hyperparameter Tuning
+* Used `TimeSeriesSplit` (5 folds) — never shuffle time-series data for CV
+* Manual parameter grid over `n_estimators`, `max_depth`, `learning_rate`, `subsample`
+* Best parameters selected based on lowest cross-validated MAE
+
+### 📊 Evaluation Metrics (Validation Set)
+* **MAE (Mean Absolute Error)** — average daily sales forecast error
+* **RMSE (Root Mean Squared Error)** — penalizes large errors more heavily
+* All metrics computed on raw sales scale (inverse of log1p transform)
+
+### 📈 Outputs
+* `data/processed/week3_model_comparison.png` — MAE/RMSE bar chart across models
+* `data/processed/week3_forecast_vs_actuals.png` — predicted vs actual daily sales
+* `data/processed/week3_residuals.png` — residual distribution and time plot
+* `data/processed/week3_learning_curve.png` — XGBoost train vs val RMSE per boosting round
+* `data/processed/week3_feature_importance.png` — top features by importance score
+
+### 💡 Key Observations
+* Lag features (especially 7-day lag) are the strongest predictors
+* XGBoost consistently outperforms both baseline and Random Forest
+* Residuals are approximately centered at zero — model is unbiased
+* Learning curve shows the model generalizes well without overfitting
+
+### 🔒 Security Note
+* Trained model weights (`models/*.pkl`) are saved locally only
+* `.gitignore` must include `models/` and `data/raw/` — do not push large files or model weights to GitHub
 
 ---
 
 ## 🛠️ Tools & Technologies
 
-* Python
+* Python 3.10
 * Pandas / NumPy
-* Matplotlib / Plotly
-* Scikit-Learn (for future model training)
-* XGBoost / Prophet (upcoming)
+* Matplotlib / Seaborn
+* Scikit-Learn (Linear Regression, Random Forest, TimeSeriesSplit, StandardScaler)
+* XGBoost
+* Joblib (model serialization)
 
 ---
 
@@ -91,90 +161,36 @@ The goal of this project is to build an AI-powered Demand Forecasting model for 
 ```
 Restaurant-Demand-Forecasting/
 │── data/
-│   ├── raw/               ← Original downloaded CSV files
-│   └── processed/         ← Cleaned & aggregated daily sales data
+│   ├── raw/                        ← Original downloaded CSV files (gitignored)
+│   └── processed/                  ← Cleaned data, feature CSVs, output charts
+│── models/                         ← Saved model weights (gitignored)
 │── notebooks/
-│   ├── week1_eda.ipynb
+│   ├── Food_Restaurant_Services_week_1.ipynb
 │   ├── Food_Restaurant_Services_week_2.ipynb
+│   └── Food_Restaurant_Services_week_3.ipynb
+│── .gitignore
 │── README.md
 ```
 
 ---
 
-## 📈 Evaluation Metrics (Upcoming)
+## 📈 Evaluation Metrics
 
-* MAE (Mean Absolute Error)
-* RMSE (Root Mean Square Error)
-* Focus on minimizing forecast error on unseen future dates
-
----
-
-## 🌱 Future Work
-
-* Week 2: Advanced feature engineering (lag features, rolling windows, holiday flags)
-* Week 3: Train XGBoost / Random Forest / Prophet models
-* Week 4: Evaluate model, extract feature importance, create business report
+* **MAE** — Mean Absolute Error (primary metric for business reporting)
+* **RMSE** — Root Mean Square Error (penalizes large forecast misses)
+* Goal: minimize both on the held-out test set (evaluated in Week 4)
 
 ---
 
-## 💡 Conclusion
+## 🌱 Week 4 (Upcoming)
 
-This project aims to transition restaurant operations from reactive guesswork to proactive, data-driven demand planning. Accurate forecasting directly supports a 20–30% reduction in food waste and supply chain costs.
-
----
-
-## 📅 Week 2: Advanced Feature Engineering
-
-🚧 **Project Status:** Week 2 Completed
-
----
-
-## 🎯 Objective
-
-In this week, we created the key input features that will give the machine learning model its predictive power. Raw date information alone is not enough — we need to extract meaningful signals from time.
-
----
-
-## 🧠 Features Engineered
-
-### Chronological Features
-
-* Day of week (0 = Monday … 6 = Sunday)
-* Month and quarter
-* `is_weekend` flag (1 if Saturday/Sunday)
-* `is_holiday` flag (using a public holiday calendar)
-
-### Lag Features
-
-* Sales from **7 days ago** (same day last week)
-* Sales from **14 days ago**
-* Sales from **28 days ago** (same day last month)
-
-### Rolling Window Statistics
-
-* 7-day rolling mean
-* 14-day rolling mean and standard deviation
-* 7-day rolling max (captures recent demand peaks)
-
----
-
-## ⚙️ Data Split
-
-* Training set: first 10 months of data
-* Test set: last 2 months of data
-* Split is **sequential** — no random shuffling, to prevent data leakage
-
----
-
-## 📊 Observation
-
-* Weekend sales consistently higher than weekday sales
-* Holiday periods show strong demand spikes
-* 7-day lag feature closely tracks the target sales pattern
-* Rolling mean smooths out noise and captures underlying trend
+* Final test-set evaluation — MAE and RMSE on Jun–Aug 2017 data
+* Feature importance business report for stakeholders
+* Visualized forecast overlay — predictions vs actuals
+* Full GitHub push with clean commit history
 
 ---
 
 ## 💡 Conclusion
 
-In Week 2, we successfully built a rich feature set from raw date information. These features — especially lag values and rolling statistics — are the most important inputs for our machine learning models in Week 3.
+This project transitions restaurant operations from reactive guesswork to proactive, data-driven demand planning. Weeks 1–3 have established a complete pipeline from raw data to a tuned XGBoost forecasting model. Week 4 will produce the final business-ready evaluation and reporting deliverables.
