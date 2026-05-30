@@ -191,6 +191,72 @@ Restaurant-Demand-Forecasting/
 
 ---
 
+📊 Week 4: Evaluation, Feature Importance & Business Reporting
+✅ Status: Completed
+
+🎯 Objective
+
+Evaluate the final model, identify the most important features, and present the results in a business-friendly way.
+
+📈 Model Evaluation
+
+Tested the final XGBoost model on the test dataset (Jun 2017 – Aug 2017).
+
+Calculated:
+
+• MAE (Mean Absolute Error) – average prediction error
+
+• RMSE (Root Mean Squared Error) – measures larger prediction errors
+
+These metrics were used to check how accurately the model predicts restaurant demand.
+
+📊 Feature Importance
+
+Analyzed which features have the biggest impact on sales prediction.
+
+Key findings:
+
+• 7-day lag sales is the most important feature
+
+• Rolling average features help capture sales trends
+
+• Weekends have higher demand than weekdays
+
+• Holidays increase restaurant sales significantly
+
+📉 Visualization & Reporting
+
+Created charts to compare actual sales and predicted sales.
+
+Generated feature importance plots to explain model decisions.
+
+Prepared a business report summarizing model performance and demand patterns.
+
+💡 Business Insights
+
+• Restaurant demand follows weekly patterns
+
+• Recent sales history strongly affects future demand
+
+• Sales increase during weekends and holidays
+
+• Forecasting can help improve inventory planning and staff scheduling
+
+📂 Final Deliverables
+
+• Complete forecasting pipeline
+
+• Final evaluation report
+
+• Feature importance analysis
+
+• Forecast vs Actual visualization
+
+🏆 Conclusion
+
+A complete restaurant demand forecasting system was developed using XGBoost. The model provides accurate sales predictions and useful business insights that can support better planning and decision-making.
+
+
 ## 💡 Conclusion
 
 This project transitions restaurant operations from reactive guesswork to proactive, data-driven demand planning. Weeks 1–3 have established a complete pipeline from raw data to a tuned XGBoost forecasting model. Week 4 will produce the final business-ready evaluation and reporting deliverables.
