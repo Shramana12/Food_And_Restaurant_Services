@@ -1,0 +1,2 @@
+cd C:\Users\Prarthana\Desktop\Food_Resturant
+py -m streamlit run "C:\Users\Prarthana\Desktop\Food_Resturant\app.py"
