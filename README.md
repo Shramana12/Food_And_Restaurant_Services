@@ -1,7 +1,7 @@
 # 🍽️ AI Demand Forecasting & Inventory Optimization for Restaurants
 
 🚧 **Project Status**
-Ongoing Internship Project – Week 3 Completed
+Ongoing Internship Project – Week 4 Completed
 
 ---
 
